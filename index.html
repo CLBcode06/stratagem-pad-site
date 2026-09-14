@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080909">
+<title>HELLDIVERS — Stratagem Input</title>
+
+<style>
+    /* =========================================================
+       STATIC WEB VERSION OF THE ANDROID STRATAGEM PAD
+       Put stratagems.json and helldivers_tips.json beside this file.
+       Put WAV/MP3 audio files in ./audio/
+       ========================================================= */
+
+    @font-face {
+        font-family: "FS Sinclair";
+        src: url("./fonts/FS-Sinclair.woff2") format("woff2");
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Swiss 721";
+        src: url("./fonts/Swiss-721.woff2") format("woff2");
+        font-display: swap;
+    }
+
+    :root {
+        --yellow: #f4c900;
+        --green: #6b8e55;
+        --red: #ff2222;
+        --equipment: #4cacc8;
+        --mission: #1b6093;
+        --panel: rgba(10, 11, 10, .88);
+        --active: var(--yellow);
+        --active-muted: color-mix(in srgb, var(--active) 52%, transparent);
+        --active-line: color-mix(in srgb, var(--active) 72%, transparent);
+        --active-arrow: color-mix(in srgb, var(--active) 8%, transparent);
+        --hud-font: "Swiss 721", Arial, sans-serif;
+        --heading-font: "FS Sinclair", "Arial Black", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #030303;
+    }
+
+    body {
+        color: var(--active);
+        font-family: var(--hud-font);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    button {
+        font: inherit;
+        color: inherit;
+    }
+
+    #app {
+        position: relative;
+        width: 100vw;
+        height: 100dvh;
+        min-height: 320px;
+        padding: 7px;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 50% 45%, #171717 0%, #080909 55%, #030303 100%);
+        transition: transform .15s linear;
+    }
+
+    /* scanlines + vignette */
+    #app::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 50;
+        background:
+            repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,.018) 0,
+                rgba(255,255,255,.018) 1px,
+                transparent 1px,
+                transparent 4px
+            ),
+            radial-gradient(
+                circle at center,
+                transparent 25%,
+                rgba(0,0,0,.58) 100%
+            );
+    }
+
+    .corner {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-color: var(--active);
+        border-style: solid;
+        border-width: 0;
+        z-index: 60;
+        pointer-events: none;
+    }
+
+    .corner.tl { top: 7px; left: 7px; border-top-width: 3px; border-left-width: 3px; }
+    .corner.tr { top: 7px; right: 7px; border-top-width: 3px; border-right-width: 3px; }
+    .corner.bl { bottom: 7px; left: 7px; border-bottom-width: 3px; border-left-width: 3px; }
+    .corner.br { bottom: 7px; right: 7px; border-bottom-width: 3px; border-right-width: 3px; }
+
+    .layout {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 6px;
+    }
+
+    /* HEADER */
+    .header {
+        height: 60px;
+        padding: 2px 48px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .header-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .title {
+        font-family: var(--heading-font);
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: 3px;
+        line-height: 1;
+    }
+
+    .subtitle {
+        margin-top: 3px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+    .for-earth {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .header-line {
+        width: 100%;
+        height: 2px;
+        background: var(--active);
+    }
+
+    /* MAIN PANELS */
+    .main {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 215px minmax(0, 1fr);
+        gap: 5px;
+    }
+
+    .panel {
+        min-width: 0;
+        min-height: 0;
+        border: 2px solid var(--active-line);
+        background: var(--panel);
+        padding: 5px;
+    }
+
+    .panel-title {
+        height: 29px;
+        display: flex;
+        align-items: center;
+        padding-left: 3px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .panel-line {
+        width: 100%;
+        height: 2px;
+        background: var(--active);
+    }
+
+    /* STRATAGEM MENU */
+    .stratagem-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .filters {
+        padding: 4px 0 3px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        flex: 0 0 auto;
+    }
+
+    .filter {
+        height: 20px;
+        padding: 0;
+        border: 1px solid color-mix(in srgb, var(--active) 42%, transparent);
+        background: color-mix(in srgb, var(--active) 4%, transparent);
+        color: var(--active);
+        cursor: pointer;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .filter.active {
+        color: #080808;
+        background: var(--active);
+        border-color: var(--active);
+    }
+
+    .stratagem-list {
+        min-height: 0;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: var(--active) #080808;
+    }
+
+    .stratagem-item {
+        flex: 0 0 auto;
+        min-height: 58px;
+        border: 1px solid color-mix(in srgb, var(--active) 48%, transparent);
+        background: color-mix(in srgb, var(--active) 4%, transparent);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 4px;
+        text-align: center;
+    }
+
+    .stratagem-name {
+        font-size: 7px;
+        font-weight: 800;
+        letter-spacing: .35px;
+        line-height: 1.1;
+    }
+
+    .mini-arrows {
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .mini-arrow {
+        width: 15px;
+        height: 15px;
+        background: var(--active);
+        clip-path: polygon(0 28%, 52% 28%, 52% 0, 100% 50%, 52% 100%, 52% 72%, 0 72%);
+    }
+
+    /* INPUT PANEL */
+    .input-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .input-title {
+        height: 32px;
+        display: flex;
+        align-items: center;
+        padding-left: 3px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+    .direction-grid {
+        min-height: 0;
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 5px;
+    }
+
+    .direction {
+        min-width: 0;
+        min-height: 0;
+        border: 2px solid var(--active);
+        background: var(--active-arrow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .direction:active,
+    .control:active,
+    .filter:active {
+        transform: scale(.985);
+    }
+
+    .big-arrow {
+        width: 50%;
+        height: 50%;
+        background: var(--active);
+        clip-path: polygon(0 28%, 52% 28%, 52% 0, 100% 50%, 52% 100%, 52% 72%, 0 72%);
+        transition: transform .05s linear;
+    }
+
+    .up .big-arrow { transform: rotate(-90deg); }
+    .down .big-arrow { transform: rotate(90deg); }
+    .left .big-arrow { transform: rotate(180deg); }
+    .right .big-arrow { transform: rotate(0deg); }
+
+    .code-display {
+        height: 48px;
+        border: 1px solid var(--active-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--active);
+    }
+
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .control {
+        width: 78px;
+        height: 31px;
+        border: 2px solid var(--active);
+        background: color-mix(in srgb, var(--active) 4%, transparent);
+        cursor: pointer;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    /* BOTTOM */
+    .bottom {
+        height: 58px;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 115px;
+        gap: 5px;
+    }
+
+    .news-panel,
+    .status-panel {
+        border: 2px solid var(--active-line);
+        background: var(--panel);
+    }
+
+    .news-panel {
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .news-window {
+        width: 100%;
+        height: 30px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        background: color-mix(in srgb, var(--active) 12%, transparent);
+    }
+
+    .news-track {
+        display: inline-block;
+        white-space: nowrap;
+        padding-left: 100%;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        animation: marquee linear infinite;
+    }
+
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-100%); }
+    }
+
+    .status-panel {
+        padding: 4px 7px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        font-size: 6.5px;
+        letter-spacing: .8px;
+    }
+
+    .status-value {
+        font-weight: 800;
+        letter-spacing: .7px;
+    }
+
+    /* ERROR */
+    #error-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 100;
+        background: rgba(255, 34, 34, .45);
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    #error-flash.show {
+        animation: flash .35s linear;
+    }
+
+    @keyframes flash {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    @media (max-height: 500px) {
+        #app { padding: 5px; }
+        .layout { gap: 4px; }
+        .header { height: 48px; padding-left: 48px; padding-right: 48px; }
+        .title { font-size: 22px; }
+        .subtitle, .for-earth { font-size: 8px; }
+        .main { grid-template-columns: 215px minmax(0, 1fr); }
+        .panel { padding: 5px; }
+        .panel-title { height: 25px; font-size: 8px; }
+        .filter { height: 18px; font-size: 7px; }
+        .stratagem-item { min-height: 52px; }
+        .stratagem-name { font-size: 6px; }
+        .mini-arrow { width: 13px; height: 13px; }
+        .mini-arrows { gap: 3px; margin-top: 4px; }
+        .input-panel { gap: 4px; padding: 6px; }
+        .input-title { height: 28px; font-size: 9px; }
+        .code-display { height: 42px; font-size: 18px; }
+        .control { width: 68px; height: 31px; font-size: 7px; }
+        .bottom { height: 52px; }
+        .status-panel { width: 105px; }
+        .news-window { height: 24px; }
+        .news-track { font-size: 8px; }
+        .status-row { font-size: 5.5px; }
+    }
+
+    @media (max-width: 700px) {
+        .header { padding-left: 35px; padding-right: 35px; }
+        .main { grid-template-columns: minmax(155px, 34vw) minmax(0, 1fr); }
+        .bottom { grid-template-columns: minmax(0, 1fr) 100px; }
+        .title { font-size: clamp(18px, 5vw, 28px); }
+    }
+</style>
+</head>
+
+<body>
+<div id="app">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <div id="error-flash"></div>
+
+    <div class="layout">
+        <header class="header">
+            <div class="header-main">
+                <div>
+                    <div class="title">HELLDIVERS</div>
+                    <div class="subtitle">STRATAGEM INPUT</div>
+                </div>
+                <div class="for-earth">FOR SUPER EARTH</div>
+            </div>
+            <div class="header-line"></div>
+        </header>
+
+        <main class="main">
+            <section class="panel stratagem-panel">
+                <div class="panel-title" id="stratagem-count">STRATAGEMS (0)</div>
+                <div class="panel-line"></div>
+
+                <div class="filters">
+                    <button class="filter active" data-filter="ALL">ALL</button>
+                    <button class="filter" data-filter="MISSION">MISSION</button>
+                    <button class="filter" data-filter="EAGLE">EAGLE</button>
+                    <button class="filter" data-filter="ORBITAL">ORBITAL</button>
+                    <button class="filter" data-filter="EQUIPMENT">EQUIPMENT</button>
+                    <button class="filter" data-filter="DEFENSIVE">DEFENSIVE</button>
+                </div>
+
+                <div class="stratagem-list" id="stratagem-list"></div>
+            </section>
+
+            <section class="panel input-panel">
+                <div class="input-title">ENTER STRATAGEM CODE</div>
+                <div class="panel-line"></div>
+
+                <div class="direction-grid">
+                    <button class="direction up" data-direction="UP" aria-label="Up">
+                        <span class="big-arrow"></span>
+                    </button>
+                    <button class="direction down" data-direction="DOWN" aria-label="Down">
+                        <span class="big-arrow"></span>
+                    </button>
+                    <button class="direction left" data-direction="LEFT" aria-label="Left">
+                        <span class="big-arrow"></span>
+                    </button>
+                    <button class="direction right" data-direction="RIGHT" aria-label="Right">
+                        <span class="big-arrow"></span>
+                    </button>
+                </div>
+
+                <div class="code-display" id="code-display">_ _ _ _ _ _ _ _ _ _ _ _</div>
+
+                <div class="controls">
+                    <button class="control" id="back">BACK</button>
+                    <button class="control" id="clear">CLEAR</button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bottom">
+            <section class="news-panel">
+                <div class="news-window">
+                    <div class="news-track" id="news-track">
+                        MINISTRY OF TRUTH BROADCAST: GLORY TO SUPER EARTH!
+                    </div>
+                </div>
+            </section>
+
+            <section class="status-panel">
+                <div class="status-row">
+                    <span>STATUS</span>
+                    <span class="status-value">ACTIVE</span>
+                </div>
+                <div class="status-row">
+                    <span>POWER</span>
+                    <span class="status-value" id="battery">--%</span>
+                </div>
+                <div class="status-row">
+                    <span>TIME</span>
+                    <span class="status-value" id="clock">--:--:--</span>
+                </div>
+            </section>
+        </footer>
+    </div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   DATA
+   ========================================================= */
+
+const FALLBACK_STRATAGEMS = [
+    // This fallback keeps the UI working if stratagems.json has not
+    // been copied into the GitHub Pages repository yet.
+    { name: "REPLACE WITH stratagems.json", code: "↑ ↓ ← →", type: "EQUIPMENT" }
+];
+
+const FALLBACK_TIPS = [
+    "GLORY TO SUPER EARTH!"
+];
+
+let allStratagems = [];
+let allTips = [];
+let selectedFilter = "ALL";
+let currentInputCode = "";
+let activeAudio = null;
+
+const DIRECTIONS = {
+    UP: "↑",
+    DOWN: "↓",
+    LEFT: "←",
+    RIGHT: "→"
+};
+
+const COLORS = {
+    DEFAULT: "#f4c900",
+    DEFENSIVE: "#6b8e55",
+    RED: "#ff2222",
+    EQUIPMENT: "#4cacc8",
+    MISSION: "#1b6093"
+};
+
+/* =========================================================
+   JSON LOADING
+   ========================================================= */
+
+async function loadJSON(path, fallback) {
+    try {
+        const response = await fetch(path, { cache: "no-cache" });
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.warn(`Could not load ${path}:`, error);
+        return fallback;
+    }
+}
+
+async function initialiseData() {
+    allStratagems = await loadJSON("./stratagems.json", FALLBACK_STRATAGEMS);
+    const tipsWrapper = await loadJSON("./helldivers_tips.json", {
+        seaf_training_manual_tips: FALLBACK_TIPS
+    });
+
+    if (Array.isArray(tipsWrapper)) {
+        allTips = tipsWrapper.map(x => typeof x === "string" ? x : x.message).filter(Boolean);
+    } else {
+        allTips = (tipsWrapper.seaf_training_manual_tips || [])
+            .map(tip => typeof tip === "string" ? tip : tip.message)
+            .filter(Boolean);
+    }
+
+    renderStratagems();
+    setupNews();
+}
+
+/* =========================================================
+   THEME
+   ========================================================= */
+
+function setActiveColor(color) {
+    document.documentElement.style.setProperty("--active", color);
+}
+
+/*
+ * Mirrors the Android version:
+ * EAGLE + ORBITAL = red
+ * EQUIPMENT = blue
+ * MISSION = dark blue
+ * DEFENSIVE = green
+ * otherwise yellow
+ */
+function getColorForCompletedStratagem() {
+    const completed = allStratagems.find(s => s.code === currentInputCode);
+
+    if (!completed) return COLORS.DEFAULT;
+
+    const type = String(completed.type || "").toUpperCase();
+
+    if (type === "EAGLE" || type === "ORBITAL") return COLORS.RED;
+    if (type === "EQUIPMENT") return COLORS.EQUIPMENT;
+    if (type === "MISSION") return COLORS.MISSION;
+    if (type === "DEFENSIVE") return COLORS.DEFENSIVE;
+
+    return COLORS.DEFAULT;
+}
+
+function updateTheme() {
+    setActiveColor(getColorForCompletedStratagem());
+}
+
+/* =========================================================
+   STRATAGEM LIST
+   ========================================================= */
+
+function getFilteredStratagems() {
+    if (selectedFilter === "ALL") return allStratagems;
+
+    return allStratagems.filter(stratagem =>
+        String(stratagem.type || "").toUpperCase() === selectedFilter
+    );
+}
+
+function renderStratagems() {
+    const list = document.getElementById("stratagem-list");
+    const filtered = getFilteredStratagems();
+
+    document.getElementById("stratagem-count").textContent =
+        `STRATAGEMS (${filtered.length})`;
+
+    list.innerHTML = "";
+
+    filtered.forEach(stratagem => {
+        const item = document.createElement("div");
+        item.className = "stratagem-item";
+
+        const name = document.createElement("div");
+        name.className = "stratagem-name";
+        name.textContent = stratagem.name;
+
+        const arrows = document.createElement("div");
+        arrows.className = "mini-arrows";
+
+        String(stratagem.code || "")
+            .trim()
+            .split(/\s+/)
+            .map(symbol => symbol.trim())
+            .filter(Boolean)
+            .forEach(symbol => {
+                const arrow = document.createElement("span");
+                arrow.className = "mini-arrow";
+
+                if (symbol === "↑") arrow.style.transform = "rotate(-90deg)";
+                if (symbol === "↓") arrow.style.transform = "rotate(90deg)";
+                if (symbol === "←") arrow.style.transform = "rotate(180deg)";
+                if (symbol === "→") arrow.style.transform = "rotate(0deg)";
+
+                arrows.appendChild(arrow);
+            });
+
+        item.appendChild(name);
+        item.appendChild(arrows);
+        list.appendChild(item);
+    });
+}
+
+document.querySelectorAll(".filter").forEach(button => {
+    button.addEventListener("click", () => {
+        playInputBeep();
+        vibrate("click");
+
+        selectedFilter = button.dataset.filter;
+
+        document.querySelectorAll(".filter").forEach(btn =>
+            btn.classList.toggle("active", btn === button)
+        );
+
+        renderStratagems();
+    });
+});
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+function isValidPrefix(code) {
+    return allStratagems.some(stratagem =>
+        String(stratagem.code || "").startsWith(code)
+    );
+}
+
+function findCompletedStratagem(code) {
+    return allStratagems.find(stratagem =>
+        String(stratagem.code || "") === code
+    );
+}
+
+function updateCodeDisplay() {
+    document.getElementById("code-display").textContent =
+        currentInputCode || "_ _ _ _ _ _ _ _ _ _ _ _";
+}
+
+function handleInput(direction) {
+    stopLongAudio();
+
+    const symbol = DIRECTIONS[direction];
+    const newCode = currentInputCode
+        ? `${currentInputCode} ${symbol}`
+        : symbol;
+
+    if (isValidPrefix(newCode)) {
+        playInputBeep();
+        currentInputCode = newCode;
+        updateTheme();
+        updateCodeDisplay();
+
+        const completed = findCompletedStratagem(newCode);
+
+        if (completed) {
+            vibrate("success");
+            playStratagemVoice(completed);
+
+            setTimeout(() => {
+                currentInputCode = "";
+                updateCodeDisplay();
+                updateTheme();
+            }, 300);
+        } else {
+            vibrate("click");
+        }
+    } else {
+        currentInputCode = newCode;
+        updateCodeDisplay();
+        triggerErrorEffect();
+    }
+}
+
+document.querySelectorAll(".direction").forEach(button => {
+    button.addEventListener("click", () =>
+        handleInput(button.dataset.direction)
+    );
+});
+
+document.getElementById("back").addEventListener("click", () => {
+    playInputBeep();
+    vibrate("click");
+
+    if (currentInputCode) {
+        currentInputCode = currentInputCode
+            .trim()
+            .split(/\s+/)
+            .slice(0, -1)
+            .join(" ");
+
+        updateCodeDisplay();
+        updateTheme();
+    }
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+    playInputBeep();
+    vibrate("click");
+
+    currentInputCode = "";
+    updateCodeDisplay();
+    updateTheme();
+});
+
+/* Keyboard support for desktop GitHub Pages use */
+document.addEventListener("keydown", event => {
+    const keyMap = {
+        ArrowUp: "UP",
+        ArrowDown: "DOWN",
+        ArrowLeft: "LEFT",
+        ArrowRight: "RIGHT"
+    };
+
+    if (keyMap[event.key]) {
+        event.preventDefault();
+        handleInput(keyMap[event.key]);
+    }
+
+    if (event.key === "Backspace") {
+        event.preventDefault();
+        document.getElementById("back").click();
+    }
+
+    if (event.key === "Escape") {
+        event.preventDefault();
+        document.getElementById("clear").click();
+    }
+});
+
+/* =========================================================
+   ERROR EFFECT
+   ========================================================= */
+
+function triggerErrorEffect() {
+    vibrate("error");
+    playErrorSound();
+
+    const app = document.getElementById("app");
+    const flash = document.getElementById("error-flash");
+
+    flash.classList.remove("show");
+    void flash.offsetWidth;
+    flash.classList.add("show");
+
+    const points = [-14, 14, -10, 10, -5, 5, 0];
+    points.forEach((x, index) => {
+        setTimeout(() => {
+            app.style.transform = `translateX(${x}px)`;
+        }, index * 35);
+    });
+
+    setTimeout(() => {
+        app.style.transform = "";
+        currentInputCode = "";
+        updateCodeDisplay();
+        updateTheme();
+    }, 150);
+}
+
+/* =========================================================
+   VIBRATION
+   ========================================================= */
+
+function vibrate(type) {
+    if (!("vibrate" in navigator)) return;
+
+    if (type === "click") navigator.vibrate(12);
+    if (type === "success") navigator.vibrate([25, 80, 25]);
+    if (type === "error") navigator.vibrate([25, 50, 25, 50, 25]);
+}
+
+/* =========================================================
+   AUDIO
+   Browser audio replaces Android SoundPool / MediaPlayer.
+   Audio files should live in ./audio/
+   ========================================================= */
+
+const AUDIO = {
+    inputBeep: ["stratagem_beep.wav"],
+    error: ["stratagem_error.wav"],
+
+    eagle: [
+        "eagle_attack_underway.wav",
+        "eagle_democracy_on_its_way.wav",
+        "eagle_unleashing_democracy.wav",
+        "eagle_eat_liberty.wav",
+        "eagle_coming_in_hot.wav"
+    ],
+
+    eagleRearm: [
+        "eagle_rearming_be_back_shortly.wav",
+        "eagle_leaving_combat_zone_to_resupply.wav",
+        "eagle_withdrawing_to_rearm.wav",
+        "eagle_returning_to_destroyer_to_resuply.wav"
+    ],
+
+    equipment: [
+        "equipment_package_1.wav",
+        "equipment_package_2.wav",
+        "equipment_support_weapon.wav"
+    ],
+
+    missionEquipment: [
+        "equipment_package_1.wav",
+        "equipment_package_2.wav"
+    ],
+
+    sentry: ["sending_down_sentry.wav"],
+    autocannon: ["sending_down_autocannon_sentry.wav"],
+    rocket: ["sending_down_rocket_sentry.wav"],
+    mortar: ["sending_down_mortar_sentry.wav"],
+    tesla: ["sending_down_tesla_tower.wav"],
+    flame: ["sending_down_flame_sentry.wav"],
+
+    resupply: ["going_supply_beacon.wav"],
+    sos: ["sos_1.wav", "sos_2.wav"],
+    minefield: ["minefield_deploy.wav"],
+    nonLethal: ["deploying_non_lethal.wav"],
+    smoke: ["deploying_smoke_screen.wav", "deploying_non_lethal.wav"],
+    weaponEmplacement: ["deploying_weapon_emplacement.wav"],
+
+    orbitalLaser: ["engaging_orbital_laser.wav"],
+    gas: ["firing_gas_strike.wav", "gas_strike_incoming.wav"],
+    barrage: ["firing_orbital_barrage.wav", "orbital_barrage_incoming.wav"],
+    strike: ["firing_orbital_strike.wav", "orbital_strike_incoming.wav"],
+
+    hellbomb: [
+        "hellbomb_deploying_now.wav",
+        "hellbomb_on_its_way.wav"
+    ],
+
+    reinforcements: [
+        "request_approved_reinforcments_have_been_launched.wav",
+        "request_approved_reinforcments_on_the_way.wav"
+    ],
+
+    anthem: ["super_earth_anthem.wav"],
+    extra: ["extra.wav"]
+};
+
+function stopLongAudio() {
+    if (activeAudio) {
+        try {
+            activeAudio.pause();
+            activeAudio.currentTime = 0;
+        } catch (_) {}
+        activeAudio = null;
+    }
+}
+
+function randomFile(files) {
+    if (!files || !files.length) return null;
+    return files[Math.floor(Math.random() * files.length)];
+}
+
+function playAudioFile(file, volume = 1, longAudio = false) {
+    if (!file) return;
+
+    const audio = new Audio(`./audio/${file}`);
+    audio.volume = volume;
+
+    if (longAudio) {
+        stopLongAudio();
+        activeAudio = audio;
+        audio.addEventListener("ended", () => {
+            if (activeAudio === audio) activeAudio = null;
+        });
+    }
+
+    audio.play().catch(error => {
+        console.warn(`Could not play ./audio/${file}:`, error);
+    });
+}
+
+function playRandom(files, volume = .1) {
+    playAudioFile(randomFile(files), volume);
+}
+
+function playInputBeep() {
+    playRandom(AUDIO.inputBeep, 1);
+}
+
+function playErrorSound() {
+    playRandom(AUDIO.error, 1);
+}
+
+function playStratagemVoice(stratagem) {
+    const name = String(stratagem.name || "").toLowerCase();
+    const type = String(stratagem.type || "").toUpperCase();
+
+    const isReinforcements = name.includes("reinforce") && !name.includes("pods");
+    const isEagleRearm = name.includes("rearm");
+    const isSentry = name.includes("sentry") || name.includes("tower");
+    const isResupply = name.includes("resupply");
+    const isSos = name.includes("sos");
+    const isSuperEarthFlag = name.includes("super earth flag");
+    const isHellbomb = name.includes("hellbomb");
+    const isOrbitalPrecision =
+        name.includes("precision strike") || name.includes("orbital precision");
+    const isOrbitalBarrage = name.includes("barrage");
+    const isOrbitalGas = name.includes("gas") && !name.includes("mine");
+    const isOrbitalLaser = name.includes("orbital laser");
+
+    const isWeaponEmplacement =
+        name.includes("anti-tank emplacement") ||
+        name.includes("hmg emplacement") ||
+        name.includes("grenadier battlement");
+
+    const isMinefield =
+        name.includes("mine") || name.includes("minefield");
+
+    const isSmoke = name.includes("smoke");
+    const isEms = name.includes("ems");
+
+    const isMissionEquipment =
+        name.includes("tactical video camera") ||
+        name.includes("seismic probe") ||
+        name.includes("sssd delivery") ||
+        name.includes("tectonic drill") ||
+        name.includes("upload data") ||
+        name.includes("reinforcement pods") ||
+        name.includes("aquifer drill") ||
+        name.includes("portable comms relay") ||
+        name.includes("prospecting drill") ||
+        name.includes("hive breaker drill") ||
+        name.includes("e-711") ||
+        name.includes("dark fluid vessel") ||
+        name.includes("cargo container");
+
+    const isExtra =
+        name.includes("call in super destroyer") ||
+        name.includes("seaf artillery");
+
+    if (isExtra) return playRandom(AUDIO.extra, 1);
+    if (isReinforcements) return playRandom(AUDIO.reinforcements);
+    if (isEagleRearm) return playRandom(AUDIO.eagleRearm);
+
+    if (isSentry) {
+        if (name.includes("autocannon")) return playRandom(AUDIO.autocannon);
+        if (name.includes("rocket") || name.includes("mls")) return playRandom(AUDIO.rocket);
+        if (name.includes("mortar")) return playRandom(AUDIO.mortar);
+        if (name.includes("tesla")) return playRandom(AUDIO.tesla);
+        if (name.includes("flame") || name.includes("flam")) return playRandom(AUDIO.flame);
+        return playRandom(AUDIO.sentry);
+    }
+
+    if (isResupply) return playRandom(AUDIO.resupply);
+    if (isSos) return playRandom(AUDIO.sos);
+    if (isSuperEarthFlag) return playAudioFile(randomFile(AUDIO.anthem), 1, true);
+    if (isMissionEquipment) return playRandom(AUDIO.missionEquipment);
+    if (isHellbomb) return playRandom(AUDIO.hellbomb);
+    if (isOrbitalPrecision) return playRandom(AUDIO.strike);
+    if (isOrbitalBarrage) return playRandom(AUDIO.barrage);
+    if (isOrbitalGas) return playRandom(AUDIO.gas);
+    if (isOrbitalLaser) return playRandom(AUDIO.orbitalLaser);
+    if (isWeaponEmplacement) return playRandom(AUDIO.weaponEmplacement);
+    if (isMinefield) return playRandom(AUDIO.minefield);
+    if (isSmoke) return playRandom(AUDIO.smoke);
+    if (isEms) return playRandom(AUDIO.nonLethal);
+
+    if (type === "EAGLE") return playRandom(AUDIO.eagle);
+    if (type === "EQUIPMENT") return playRandom(AUDIO.equipment);
+}
+
+/* =========================================================
+   NEWS / TIME / BATTERY
+   ========================================================= */
+
+function setupNews() {
+    const text = allTips.length
+        ? allTips.map(tip => `MINISTRY OF TRUTH BROADCAST: ${tip}`).join("     ★     ")
+        : "MINISTRY OF TRUTH BROADCAST: GLORY TO SUPER EARTH!";
+
+    const track = document.getElementById("news-track");
+    track.textContent = `    ${text}    `;
+
+    /*
+     * Roughly mirrors the Android animation. A longer message gets
+     * a longer travel time so the ticker remains readable.
+     */
+    const duration = Math.max(18, text.length * .12);
+    track.style.animationDuration = `${duration}s`;
+}
+
+function updateClock() {
+    const now = new Date();
+
+    document.getElementById("clock").textContent =
+        now.toLocaleTimeString("en-GB", {
+            hour12: false,
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+
+    /*
+     * A normal website cannot reliably read the phone's actual battery
+     * percentage. The Battery Status API is optional and unsupported
+     * in many browsers, so use it when available and otherwise show --%.
+     */
+    if (navigator.getBattery) {
+        navigator.getBattery().then(battery => {
+            const update = () => {
+                document.getElementById("battery").textContent =
+                    `${Math.round(battery.level * 100)}%`;
+            };
+            update();
+            battery.addEventListener("levelchange", update);
+        }).catch(() => {
+            document.getElementById("battery").textContent = "--%";
+        });
+    }
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+/* Start */
+initialiseData();
+updateCodeDisplay();
+updateTheme();
+</script>
+</body>
+</html>

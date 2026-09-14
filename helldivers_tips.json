@@ -1,0 +1,179 @@
+{
+  "seaf_training_manual_tips": [
+    {
+      "id": "tip_01",
+      "category": "GENERAL",
+      "message": "Only a traitor is curious about alien artifacts!"
+    },
+    {
+      "id": "tip_02",
+      "category": "GENERAL",
+      "message": "Practice your daily desensitization exercises to ensure you remain unfazed by enemy atrocities."
+    },
+    {
+      "id": "tip_03",
+      "category": "GENERAL",
+      "message": "If at first you don't succeed, dive, dive again. And again. And again. And again. And again. And again. And again. And again. And again. And again. And again. And again. And again. And again."
+    },
+    {
+      "id": "tip_04",
+      "category": "GENERAL",
+      "message": "Don't drink and drive."
+    },
+    {
+      "id": "tip_05",
+      "category": "STRATAGEMS",
+      "message": "Use the Eagle Rearm stratagem during calmer periods to ensure you have those Eagle Strikes available when you need them."
+    },
+    {
+      "id": "tip_06",
+      "category": "GENERAL",
+      "message": "Super Earth recommends spending at least 2.4 seconds per mission enjoying the scenery."
+    },
+    {
+      "id": "tip_07",
+      "category": "MORALE",
+      "message": "A happy Helldiver is a deadly Helldiver."
+    },
+    {
+      "id": "tip_08",
+      "category": "COMBAT",
+      "message": "Friendly Fire isn't."
+    },
+    {
+      "id": "tip_09",
+      "category": "MULTIPLAYER",
+      "message": "Don't go it alone – join a squad in order to unleash maximum liberation!"
+    },
+    {
+      "id": "tip_10",
+      "category": "LORE",
+      "message": "Super Earth has many holidays, but the most important is October 26th – Liberty Day!"
+    },
+    {
+      "id": "tip_11",
+      "category": "COMBAT",
+      "message": "The closer you are to the edge of the map, the steeper the angle of incoming orbital bombardments. Physics!"
+    },
+    {
+      "id": "tip_12",
+      "category": "OBJECTIVES",
+      "message": "Make sure to pick up your fallen squadmates' sample containers. They're critical for our collective scientific progress!"
+    },
+    {
+      "id": "tip_13",
+      "category": "STRATAGEMS",
+      "message": "All Stratagems have their strengths and weaknesses. Choose your Stratagem loadout to best fit the mission and your squad composition."
+    },
+    {
+      "id": "tip_14",
+      "category": "WELLNESS",
+      "message": "Don't worry – stims have zero addictive properties!* *Study paid for by Permacura. Permacura: put your life in our hands."
+    },
+    {
+      "id": "tip_15",
+      "category": "GENERAL",
+      "message": "Don't forget to take breaks! That is, if you want to be remembered as a coward."
+    },
+    {
+      "id": "tip_16",
+      "category": "MEDICAL",
+      "message": "Nine out of ten doctors agree that a wound to the chest will make you bleed out if unattended."
+    },
+    {
+      "id": "tip_17",
+      "category": "GENERAL",
+      "message": "Remember: Freedom!"
+    },
+    {
+      "id": "tip_18",
+      "category": "COMBAT",
+      "message": "Don't Panic. As a last resort, you can use melee attacks to fend off enemies. Remember: death is better than cowardice!"
+    },
+    {
+      "id": "tip_19",
+      "category": "FACTIONS",
+      "message": "The Automatons are equipped with hyper reactive protocols, making them susceptible to suppressive fire. The more you shoot at them, the less accurate they'll be."
+    },
+    {
+      "id": "tip_20",
+      "category": "DIPLOMACY",
+      "message": "If an enemy ever attempts to engage in diplomacy, SHOOT THEM. We mustn't believe their lies."
+    },
+    {
+      "id": "tip_21",
+      "category": "FACTIONS",
+      "message": "When you're up against the bots, remember the 3 C's: Cover, Courage, and more Cover."
+    },
+    {
+      "id": "tip_22",
+      "category": "BUREAUCRACY",
+      "message": "Remember to fill in your C-01 permit before any act that could result in a child."
+    },
+    {
+      "id": "tip_23",
+      "category": "MINISTRY_OF_TRUTH",
+      "message": "Failure to complete mission objectives will NOT result in you being sent to a freedom camp, those are merely dissident rumors."
+    },
+    {
+      "id": "tip_24",
+      "category": "LOYALTY",
+      "message": "If you notice a squadmate sympathizing with an enemy, report them to your Democracy Officer. Thoughtcrimes kill!"
+    },
+    {
+      "id": "tip_25",
+      "category": "COMBAT",
+      "message": "Diving to the ground can be a life-saver, but it also makes you an easy target for melee units."
+    },
+    {
+      "id": "tip_26",
+      "category": "COMBAT",
+      "message": "It pays to be a straight shooter – angled fire might glance off your target or even ricochet into your squadmates!"
+    },
+    {
+      "id": "tip_27",
+      "category": "MISSION_PLANNING",
+      "message": "The longer you stay in a mission, the heavier the enemy presence becomes."
+    },
+    {
+      "id": "tip_28",
+      "category": "MISSION_PLANNING",
+      "message": "Day and night sides of a planet are visible during mission selection, allowing you to choose the mission that's right for you!"
+    },
+    {
+      "id": "tip_29",
+      "category": "COMBAT",
+      "message": "If the enemies just keep coming, find out where they're coming from and unleash hell. Bug hive? Destroy! Bot factory? Destroy!"
+    },
+    {
+      "id": "tip_30",
+      "category": "WEAPONS",
+      "message": "Check your Ammo by holding the Reload button."
+    },
+    {
+      "id": "tip_31",
+      "category": "WEAPONS",
+      "message": "Grenades detonation time starts when you pull back for a throw – time your throw for an air-burst detonation."
+    },
+    {
+      "id": "tip_32",
+      "category": "REWARDS",
+      "message": "More challenging missions yield greater rewards."
+    },
+    {
+      "id": "tip_33",
+      "category": "WEAPONS",
+      "message": "Reloading discards the remaining rounds in your magazine."
+    },
+    {
+      "id": "tip_34",
+      "category": "COMBAT",
+      "message": "Your stance has a significant impact on accuracy. The S.E.A.F. manual lists the following stances in order of least to most accurate: Moving < Standing < Crouching < Prone."
+    },
+    {
+      "id": "tip_35",
+      "category": "COMBAT",
+      "message": "Most enemies have both weak spots and armored spots. The S.E.A.F. training manual recommends aiming for the weak spots."
+    }
+  ]
+}
