@@ -7,12 +7,6 @@
 <title>HELLDIVERS — Stratagem Input</title>
 
 <style>
-    /* =========================================================
-       STATIC WEB VERSION OF THE ANDROID STRATAGEM PAD
-       Put stratagems.json and helldivers_tips.json beside this file.
-       Put WAV/MP3 audio files in ./audio/
-       ========================================================= */
-
     @font-face {
         font-family: "FS Sinclair";
         src: url("./fonts/FS-Sinclair.woff2") format("woff2");
@@ -587,8 +581,6 @@
    ========================================================= */
 
 const FALLBACK_STRATAGEMS = [
-    // This fallback keeps the UI working if stratagems.json has not
-    // been copied into the GitHub Pages repository yet.
     { name: "REPLACE WITH stratagems.json", code: "↑ ↓ ← →", type: "EQUIPMENT" }
 ];
 
@@ -658,14 +650,6 @@ function setActiveColor(color) {
     document.documentElement.style.setProperty("--active", color);
 }
 
-/*
- * Mirrors the Android version:
- * EAGLE + ORBITAL = red
- * EQUIPMENT = blue
- * MISSION = dark blue
- * DEFENSIVE = green
- * otherwise yellow
- */
 function getColorForCompletedStratagem() {
     const completed = allStratagems.find(s => s.code === currentInputCode);
 
@@ -911,8 +895,6 @@ function vibrate(type) {
 
 /* =========================================================
    AUDIO
-   Browser audio replaces Android SoundPool / MediaPlayer.
-   Audio files should live in ./audio/
    ========================================================= */
 
 const AUDIO = {
